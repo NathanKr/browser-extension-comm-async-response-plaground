@@ -1,0 +1,1 @@
+# browser-extension-content-script-limitation-vanilla-js-plaground
