@@ -1,6 +1,10 @@
 <h2>Motivation</h2>
 given a background script sending a message to content script and wait for response. If the content script does not reply withing 0.5 sec i get connection error. So what to do
 
+<h2>Demo</h2>
+The background create a tab , the content script run 5 sec task and send the datetime at the task start\end back to the background using sendResponse
+
+
 <h2>Sample flow</h2>
 check ver 0.1 and see the problem on this senario : 
 <p>background :  create a tab and send a message. first make sure you send message only inside chrome.tabs.onUpdated.addListener</p>
