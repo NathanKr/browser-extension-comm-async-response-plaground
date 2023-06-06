@@ -1,0 +1,21 @@
+{
+  "name": "Content Script",
+  "version": "1.0",
+  "description": "Content Script Description",
+  "manifest_version": 3,
+  "author": "Nathan Krasney",
+  "action": {
+    "default_icon": "default_icon.png"
+  },
+  "background": {
+    "service_worker": "background/service_worker.js"
+  },
+  "content_scripts": [
+    {
+      "js": ["content/content.js"],
+      "matches": [
+        "https://www.linkedin.com/feed/*"
+      ]
+    }
+  ]
+}
