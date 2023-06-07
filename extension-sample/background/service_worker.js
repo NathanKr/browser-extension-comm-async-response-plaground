@@ -19,25 +19,19 @@ async function createTabAndWaitForReady(url, runOnTabReady) {
 
 async function run() {
   const url = "https://www.linkedin.com/feed/";
-  const runOnTabReady = (tabId) => {
-    const callback = (response) => {
-      console.log("got response in background");
-      console.log(response);
-    };
-
+  const runOnTabReady = async (tabId) => {
     console.log("before chrome.tabs.sendMessage in background");
-
-    chrome.tabs.sendMessage(
-      tabId,
-      {
-        message: "Hello from the background script!",
-      },
-      null,
-      callback
-    );
+    // --- you can also use chrome.tabs.sendMessage with callback instead of promise
+    const response = await chrome.tabs.sendMessage(tabId, {
+      message: "Hello from the background script!",
+    });
+    console.log("got response in background");
+    console.log(response);
   };
-  await createTabAndWaitForReady(url, runOnTabReady);
 
+  await createTabAndWaitForReady(url, runOnTabReady);
 }
+
+
 
 run();
