@@ -1,6 +1,9 @@
 <h2>Motivation</h2>
 given a background script sending a message to content script and wait for response. If the content script does not reply withing 0.5 sec i get connection error. So what to do
 
+<h2>CAUTION !!!!!!!</h2>
+although this example show how to return info after long process using the reciver a-sync sendMessage ,i got later problems with this. The general solution i see is to send immidiate start message and send the processing info via chrome.runtime.sendMessage
+
 <h2>Demo</h2>
 The background create a tab , the content script run 5 sec task and send the datetime at the task start\end back to the background using sendResponse
 
