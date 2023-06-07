@@ -16,6 +16,8 @@ async function performLongTask() {
   return { dtBefore, dtAfter };
 }
 
+
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   console.log("content script got request !!!!!!!!!!");
   console.log(request);
