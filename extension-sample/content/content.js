@@ -4,19 +4,29 @@ function sleep(milliseconds) {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
-async function performLongTask() {
-  const sleepTimeMs = 5000;
-  const dtBefore = Date.now();
-  console.log(`before sleep ${sleepTimeMs}`);
-  // --- simulate long task
-  await sleep(sleepTimeMs);
-  console.log(`after sleep ${sleepTimeMs}`);
-  const dtAfter = Date.now();
-
-  return { dtBefore, dtAfter };
+function busy(len) {
+  const start = Date.now();
+  let s = ""
+  for (i = 0; i < len; i++) {
+    s += toString(i);
+  }
+  console.log(s);
+  const end = Date.now();
+  console.log(`Execution time: ${end - start} ms`);
 }
 
+async function performLongTask() {
+  const len = 9000000;
+  const dtBefore = Date.now();
+  console.log(`before long operation`);
+  // --- simulate long task
+  busy(len);
+  console.log(`after long operation`);
+  const dtAfter = Date.now();
+  const spanMs = dtAfter - dtBefore;
 
+  return { spanMs, dtBefore, dtAfter };
+}
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   console.log("content script got request !!!!!!!!!!");

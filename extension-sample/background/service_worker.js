@@ -1,10 +1,11 @@
 console.log("background is loaded ....");
 
-async function createTabAndWaitForReady(url, runOnTabReady) {
+async function createTabAndWaitForReadyRunOnTabReadyAndRemoveTab(url, runOnTabReady) {
   const tab = await chrome.tabs.create({
     url,
   });
   const tabId = tab.id;
+  console.log(`---------- new tab is created : ${tabId}`);
 
   const p = new Promise((resolve) => {
     chrome.tabs.onUpdated.addListener(function listener(
@@ -36,12 +37,15 @@ async function run() {
     console.log("got response in background");
     console.log(response);
     console.log("end runOnTabReady");
+
+    await chrome.tabs.remove(tabId);
+    console.log(`tab id ${tabId} is removed`);
     
     onComplete(); // --- put in the end
   };
 
-  await createTabAndWaitForReady(url, runOnTabReady);
-  await createTabAndWaitForReady(url, runOnTabReady);
+  await createTabAndWaitForReadyRunOnTabReadyAndRemoveTab(url, runOnTabReady);
+  await createTabAndWaitForReadyRunOnTabReadyAndRemoveTab(url, runOnTabReady);
 }
 
 run();
