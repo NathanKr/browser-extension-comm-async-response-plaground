@@ -16,12 +16,16 @@ but if the reciver is content script and processing time is above 0.5 and the re
 <h3>perfect solution</h3>
 if the sender need to wait for the reciver and you do not want to depend on processing time you simply need to make the reciver sendResponse to work asynchronously
 
+<h3>Limitation</h3>
+i do not see limitation . Did a test where the reciver - content was processing for almost 50 sec and using a-sync sendResponse deliver the info to the waiting sender
+
+
 <h2>Synchronization Demo</h2>
 The following tasks are perfomrd in series !!!!! and implemented in createTabAndWaitForReadyRunOnTabReadyAndRemoveTab
 <ol>
 <li>The background create a tab</li>
 <li>the content script perform a long processing task ~ 12 sec and send the datetime at the task start\end back to the background using async sendResponse </li>
-<li>The background create a tab</li>
+<li>The background delete the created tab</li>
 </ol>
 
 now you can do this :

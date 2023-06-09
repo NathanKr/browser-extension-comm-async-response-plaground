@@ -6,17 +6,26 @@ function sleep(milliseconds) {
 
 function busy(len) {
   const start = Date.now();
-  let s = ""
-  for (i = 0; i < len; i++) {
-    s += toString(i);
+  let s = "";
+  for (let index = 0; index < 1000; index++) {
+    for (i = 0; i < len; i++) {
+      s += toString(i);
+    }
+    console.log(s.length);
+    s = "";
   }
-  console.log(s);
+
   const end = Date.now();
   console.log(`Execution time: ${end - start} ms`);
 }
 
 async function performLongTask() {
-  const len = 9000000;
+  const BASIC =  100000; // this take 3 sec
+  // const len = 200000; // this take 9 sec
+  // const len = 6*BASIC; // this take 46 sec
+  const len = 1*BASIC; 
+
+
   const dtBefore = Date.now();
   console.log(`before long operation`);
   // --- simulate long task
