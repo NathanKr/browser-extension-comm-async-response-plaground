@@ -10,9 +10,10 @@ console.log("background is loaded ....");
  * @param {*} url 
  * @param {*} runOnTabReady 
  */
-async function createTabAndWaitForReadyRunOnTabReadyAndRemoveTab(
+async function createTabAndWaitForReadySendMessageWaitForResponseAndRemoveTab(
   url,
-  runOnTabReady
+  runOnTabReady,
+  messageObj
 ) {
   const tab = await chrome.tabs.create({
     url,
@@ -27,7 +28,7 @@ async function createTabAndWaitForReadyRunOnTabReadyAndRemoveTab(
     ) {
       if (updatedTabId === tabId && changeInfo.status === "complete") {
         // --- await here is not working so i have to use promise
-        runOnTabReady(tabId, resolve);
+        runOnTabReady(tabId, resolve,messageObj);
         // Remove the event listener
         chrome.tabs.onUpdated.removeListener(listener);
       }
@@ -37,29 +38,33 @@ async function createTabAndWaitForReadyRunOnTabReadyAndRemoveTab(
   return p;
 }
 
+// const url = "https://www.linkedin.com/feed/";
+// const url = "https://www.ynet.co.il/home/0,7340,L-8,00.html";
+const url = "https://example.com/"
+const runOnTabReady = async (tabId, onComplete, messageObj) => {
+  console.log("start runOnTabReady");
+  // --- you can also use chrome.tabs.sendMessage with callback instead of promise
+  const response = await chrome.tabs.sendMessage(tabId, messageObj);
+  console.log("got response in background");
+  console.log(response);
+
+  await chrome.tabs.remove(tabId);
+  console.log(`------------- tab id ${tabId} is removed`);
+
+  onComplete(response); // --- put in the end
+};
+
 async function run() {
-  // const url = "https://www.linkedin.com/feed/";
-  const url = "https://www.ynet.co.il/home/0,7340,L-8,00.html";
-  const runOnTabReady = async (tabId, onComplete) => {
-    console.log("start runOnTabReady");
-    // --- you can also use chrome.tabs.sendMessage with callback instead of promise
-    const response = await chrome.tabs.sendMessage(tabId, {
-      message: "Hello from the background script!",
-    });
-    console.log("got response in background");
-    console.log(response);
-    console.log("end runOnTabReady");
-
-    await chrome.tabs.remove(tabId);
-    console.log(`------------- tab id ${tabId} is removed`);
-
-    onComplete(response); // --- put in the end
+  // --- perform the task in series !!!!!!!!!!
+  const messageObj = {
+    message: "Hello from the background script!",
   };
 
   for (let index = 0; index < 2; index++) {
-    const result = await createTabAndWaitForReadyRunOnTabReadyAndRemoveTab(
+    const result = await createTabAndWaitForReadySendMessageWaitForResponseAndRemoveTab(
       url,
-      runOnTabReady
+      runOnTabReady,
+      messageObj
     );
     console.log(`result on background ${result}`);
     console.log(result);

@@ -21,6 +21,7 @@ function busy(len) {
 
 async function performLongTask() {
   const BASIC =  100000; // this take 3 sec
+  // const len = 100000; // this take 2 sec
   // const len = 200000; // this take 9 sec
   // const len = 6*BASIC; // this take 46 sec
   const len = 1*BASIC; 
