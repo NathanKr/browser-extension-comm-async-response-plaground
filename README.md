@@ -1,5 +1,20 @@
-<h2>Motivation</h2>
+<h2>Introduction</h2>
 given a background script sending a message to content script and wait for response. If the content script does not reply withing 0.5 sec i get connection error. So what to do
+
+<h2>Motivation</h2>
+
+<h3>use cases that this repo is not relevant for</h3>
+<ul>
+<li>If you have tasks that does not return info than this is not important for you because the sender does not need to wait for response</li>
+<li>if the sender need the response and reciver reply quickly (until 0.5 sec in content script) using sendResponse than no problem</li>
+</ul>
+
+<h3>use cases that this repo is relevant but you have other option</h3>
+but if the reciver is content script and processing time is above 0.5 and the reciver need the information than you have a problem.
+<p> you can solve this using two messages : start and finish where the reciver send start immidiately in sendResponse and finish via runtime.sendMessage but this require state machine to handle. it is possible but cumbersome<p>
+
+<h3>perfect solution</h3>
+if the sender need to wait for the reciver and you do not want to depend on processing time you simply need to make the reciver sendResponse to work asynchronously
 
 <h2>Synchronization Demo</h2>
 The following tasks are perfomrd in series !!!!! and implemented in createTabAndWaitForReadyRunOnTabReadyAndRemoveTab
