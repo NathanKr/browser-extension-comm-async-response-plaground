@@ -1,5 +1,7 @@
+import { sendMessageToContentScript } from "../lib/utils";
 import IRunOnTabReady from "../types/i-run-on-tab-ready";
 import { ISendMessage } from "../types/i-send-message";
+import { ISendResponse } from "../types/i-send-response";
 
 /**
  * The following tasks are perfomrd in series !!!!! 
@@ -15,7 +17,10 @@ const runOnTabReadyDefault = async (params: IRunOnTabReady) => {
   const { tabId, message, onComplete } = params;
   console.log("start runOnTabReady");
   // --- you can also use chrome.tabs.sendMessage with callback instead of promise
-  const response = await chrome.tabs.sendMessage(tabId, message);
+  const response: ISendResponse = await sendMessageToContentScript(
+    tabId,
+    message
+  );
   console.log("got response in background");
   console.log(response);
 
@@ -28,7 +33,7 @@ const runOnTabReadyDefault = async (params: IRunOnTabReady) => {
 export async function sendMessageBetweenTabCreateRemove(
   url: string,
   message: ISendMessage
-): Promise<unknown> {
+): Promise<ISendResponse> {
   return createTabAndWaitForReadySendMessageWaitForResponseAndRemoveTab(
     url,
     runOnTabReadyDefault,
@@ -39,15 +44,15 @@ export async function sendMessageBetweenTabCreateRemove(
 async function createTabAndWaitForReadySendMessageWaitForResponseAndRemoveTab(
   url: string,
   runOnTabReady: (params: IRunOnTabReady) => void,
-  message: unknown
-): Promise<unknown> {
+  message: ISendMessage
+): Promise<ISendResponse> {
   const tab = await chrome.tabs.create({
     url,
   });
   const tabId = tab.id;
   console.log(`---------- new tab is created : ${tabId}`);
 
-  const p = new Promise((resolve) => {
+  const p = new Promise<ISendResponse>((resolve) => {
     chrome.tabs.onUpdated.addListener(function listener(
       updatedTabId: number,
       changeInfo: any

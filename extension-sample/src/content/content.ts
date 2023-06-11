@@ -21,6 +21,7 @@ chrome.runtime.onMessage.addListener(
     const params: IProcessWithPromise = {
       sendResponse,
       performLongTask,
+      request
     };
 
     // do not await !!!!!!!!!! , return true will signal sendResponse later

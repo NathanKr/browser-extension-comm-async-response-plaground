@@ -1,5 +1,6 @@
 // --- imported only by content.ts
 
+import { ISendMessage } from "../types/i-send-message";
 import { ISendResponse } from "../types/i-send-response";
 
 function busy(len: number): void {
@@ -17,7 +18,7 @@ function busy(len: number): void {
   console.log(`Execution time: ${end - start} ms`);
 }
 
-export async function performLongTask(): Promise<unknown> {
+export async function performLongTask(): Promise<ISendResponse> {
   const BASIC = 100000; // this take 3 sec
   // const len = 100000; // this take 2 sec
   // const len = 200000; // this take 9 sec
@@ -32,18 +33,26 @@ export async function performLongTask(): Promise<unknown> {
   const dtAfter = Date.now();
   const spanMs = dtAfter - dtBefore;
 
-  return { spanMs, dtBefore, dtAfter };
+  const result: ISendResponse = {
+    payload: { spanMs, dtBefore, dtAfter },
+    status: {
+      isSuccess: false,
+      error: undefined,
+    },
+  };
+  return result;
 }
 
 export interface IProcessWithPromise {
+  request: ISendMessage;
   sendResponse: (response: ISendResponse) => void;
-  performLongTask(): Promise<unknown>;
+  performLongTask(request: ISendMessage): Promise<ISendResponse>;
 }
 
 export const processWithPromise = (params: IProcessWithPromise) => {
-  const { sendResponse, performLongTask } = params;
+  const { sendResponse, performLongTask, request } = params;
 
-  const complete = (val: unknown) => {
+  const complete = (val: unknown): void => {
     const response: ISendResponse = {
       payload: { result: "Operation completed !!!", val },
       status: {
@@ -56,7 +65,7 @@ export const processWithPromise = (params: IProcessWithPromise) => {
 
   // Perform the sleep or long-running task
   const p = new Promise(async (resolve) => {
-    const resData = await performLongTask();
+    const resData : ISendResponse = await performLongTask(request);
     // Once the task is complete, send the actual response !!!
     resolve(resData);
   });
