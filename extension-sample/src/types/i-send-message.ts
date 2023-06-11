@@ -1,4 +1,6 @@
+import { ActionType } from "./types";
+
 export interface ISendMessage {
-  action: string;
+  action: ActionType;
   payload?: object;
 }

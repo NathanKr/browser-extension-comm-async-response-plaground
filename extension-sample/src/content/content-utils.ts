@@ -2,6 +2,7 @@
 
 import { ISendMessage } from "../types/i-send-message";
 import { ISendResponse } from "../types/i-send-response";
+import { PerformLongTask } from "../types/types";
 
 function busy(len: number): void {
   const start = Date.now();
@@ -18,7 +19,20 @@ function busy(len: number): void {
   console.log(`Execution time: ${end - start} ms`);
 }
 
-export async function performLongTask(): Promise<ISendResponse> {
+export const performLongTaskActionNotFoundError: PerformLongTask = async (
+  request: ISendMessage
+): Promise<ISendResponse> => {
+  const result: ISendResponse = {
+    status: {
+      isSuccess: false,
+      error: `action not found : ${request.action}`,
+    },
+  };
+  return result;
+};
+
+
+export async function performLongTask1(): Promise<ISendResponse> {
   const BASIC = 100000; // this take 3 sec
   // const len = 100000; // this take 2 sec
   // const len = 200000; // this take 9 sec
@@ -46,7 +60,7 @@ export async function performLongTask(): Promise<ISendResponse> {
 export interface IProcessWithPromise {
   request: ISendMessage;
   sendResponse: (response: ISendResponse) => void;
-  performLongTask(request: ISendMessage): Promise<ISendResponse>;
+  performLongTask: PerformLongTask;
 }
 
 export const processWithPromise = (params: IProcessWithPromise) => {
@@ -65,7 +79,18 @@ export const processWithPromise = (params: IProcessWithPromise) => {
 
   // Perform the sleep or long-running task
   const p = new Promise(async (resolve) => {
-    const resData : ISendResponse = await performLongTask(request);
+    let resData: ISendResponse = {
+      status: {
+        isSuccess: false,
+        error: undefined,
+      },
+    };
+    try {
+      resData = await performLongTask(request);
+    } catch (err) {
+      resData.status.error = err;
+    }
+
     // Once the task is complete, send the actual response !!!
     resolve(resData);
   });
