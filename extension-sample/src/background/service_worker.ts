@@ -1,5 +1,11 @@
 console.log("background is loaded ....");
 
+interface IRunOnTabReady {
+  tabId: number;
+  onComplete: (value: unknown) => void;
+  messageObj: object;
+}
+
 /**
  * The following tasks are perfomrd in series !!!!! 
     1.  The background create a tab
@@ -11,9 +17,9 @@ console.log("background is loaded ....");
  * @param {*} runOnTabReady 
  */
 async function createTabAndWaitForReadySendMessageWaitForResponseAndRemoveTab(
-  url,
-  runOnTabReady,
-  messageObj
+  url: string,
+  runOnTabReady: (params: IRunOnTabReady) => void,
+  messageObj: object
 ) {
   const tab = await chrome.tabs.create({
     url,
@@ -23,12 +29,12 @@ async function createTabAndWaitForReadySendMessageWaitForResponseAndRemoveTab(
 
   const p = new Promise((resolve) => {
     chrome.tabs.onUpdated.addListener(function listener(
-      updatedTabId,
-      changeInfo
+      updatedTabId : number,
+      changeInfo : any
     ) {
       if (updatedTabId === tabId && changeInfo.status === "complete") {
         // --- await here is not working so i have to use promise
-        runOnTabReady(tabId, resolve,messageObj);
+        runOnTabReady({ tabId, onComplete: resolve, messageObj });
         // Remove the event listener
         chrome.tabs.onUpdated.removeListener(listener);
       }
@@ -40,8 +46,9 @@ async function createTabAndWaitForReadySendMessageWaitForResponseAndRemoveTab(
 
 // const url = "https://www.linkedin.com/feed/";
 // const url = "https://www.ynet.co.il/home/0,7340,L-8,00.html";
-const url = "https://example.com/"
-const runOnTabReady = async (tabId, onComplete, messageObj) => {
+const url = "https://example.com/";
+const runOnTabReady = async (params: IRunOnTabReady) => {
+  const { tabId, messageObj, onComplete } = params;
   console.log("start runOnTabReady");
   // --- you can also use chrome.tabs.sendMessage with callback instead of promise
   const response = await chrome.tabs.sendMessage(tabId, messageObj);
@@ -61,11 +68,12 @@ async function run() {
   };
 
   for (let index = 0; index < 2; index++) {
-    const result = await createTabAndWaitForReadySendMessageWaitForResponseAndRemoveTab(
-      url,
-      runOnTabReady,
-      messageObj
-    );
+    const result =
+      await createTabAndWaitForReadySendMessageWaitForResponseAndRemoveTab(
+        url,
+        runOnTabReady,
+        messageObj
+      );
     console.log(`result on background ${result}`);
     console.log(result);
   }

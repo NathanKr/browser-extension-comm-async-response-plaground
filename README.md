@@ -88,3 +88,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   return true;
 });
 ```
+
+<h2>Open issues</h2>
+<ol>
+<li>when i have started to use rollup i got during the build process '(!) "this" has been rewritten to "undefined"'</li>
+</ol>
+
