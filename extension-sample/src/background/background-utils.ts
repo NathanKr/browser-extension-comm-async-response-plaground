@@ -1,4 +1,5 @@
 import IRunOnTabReady from "../types/i-run-on-tab-ready";
+import { ISendMessage } from "../types/i-send-message";
 
 /**
  * The following tasks are perfomrd in series !!!!! 
@@ -11,10 +12,10 @@ import IRunOnTabReady from "../types/i-run-on-tab-ready";
  * @param {*} runOnTabReady 
  */
 const runOnTabReadyDefault = async (params: IRunOnTabReady) => {
-  const { tabId, messageObj, onComplete } = params;
+  const { tabId, message, onComplete } = params;
   console.log("start runOnTabReady");
   // --- you can also use chrome.tabs.sendMessage with callback instead of promise
-  const response = await chrome.tabs.sendMessage(tabId, messageObj);
+  const response = await chrome.tabs.sendMessage(tabId, message);
   console.log("got response in background");
   console.log(response);
 
@@ -26,19 +27,19 @@ const runOnTabReadyDefault = async (params: IRunOnTabReady) => {
 
 export async function sendMessageBetweenTabCreateRemove(
   url: string,
-  messageObj: object
+  message: ISendMessage
 ): Promise<unknown> {
   return createTabAndWaitForReadySendMessageWaitForResponseAndRemoveTab(
     url,
     runOnTabReadyDefault,
-    messageObj
+    message
   );
 }
 
 async function createTabAndWaitForReadySendMessageWaitForResponseAndRemoveTab(
   url: string,
   runOnTabReady: (params: IRunOnTabReady) => void,
-  messageObj: object
+  message: unknown
 ): Promise<unknown> {
   const tab = await chrome.tabs.create({
     url,
@@ -53,7 +54,7 @@ async function createTabAndWaitForReadySendMessageWaitForResponseAndRemoveTab(
     ) {
       if (updatedTabId === tabId && changeInfo.status === "complete") {
         // --- await here is not working so i have to use promise
-        runOnTabReady({ tabId, onComplete: resolve, messageObj });
+        runOnTabReady({ tabId, onComplete: resolve, message });
         // Remove the event listener
         chrome.tabs.onUpdated.removeListener(listener);
       }

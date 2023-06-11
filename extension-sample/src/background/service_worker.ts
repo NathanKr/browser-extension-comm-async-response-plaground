@@ -1,4 +1,5 @@
-import { sendMessageBetweenTabCreateRemove } from "./utils";
+import { ISendMessage } from "../types/i-send-message";
+import { sendMessageBetweenTabCreateRemove } from "./background-utils";
 
 console.log("background is loaded ....");
 
@@ -8,12 +9,12 @@ const url = "https://example.com/";
 
 async function run() {
   // --- perform the task in series !!!!!!!!!!
-  const messageObj = {
-    message: "Hello from the background script!",
+  const message : ISendMessage = {
+    action: "action1",
   };
 
   for (let index = 0; index < 2; index++) {
-    const result = await sendMessageBetweenTabCreateRemove(url, messageObj);
+    const result = await sendMessageBetweenTabCreateRemove(url, message);
     console.log(`result on background ${result}`);
     console.log(result);
   }
