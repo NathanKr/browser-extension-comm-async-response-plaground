@@ -89,8 +89,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 ```
 
-<h2>Open issues</h2>
+<h2>references</h2>
 <ol>
-<li>when i have started to use rollup i got during the build process '(!) "this" has been rewritten to "undefined"'</li>
+<li>the rollup setup is taken from <a href='https://github.com/NathanKr/rollup-plugin-complex-playground/releases/tag/1.1'>rollup-plugin-complex-playground (ver 1.1)</a></li>
 </ol>
 
