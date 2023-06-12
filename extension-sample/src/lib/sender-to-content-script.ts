@@ -65,7 +65,7 @@ async function createTabAndWaitForReadySendMessageWaitForResponseAndRemoveTab(
     url,
   });
   const tabId = tab.id;
-  console.log(`---------- new tab is created : ${tabId}`);
+  console.log(`***************  new tab is created : ${tabId} *************** `);
 
   const p = new Promise<ISendResponse>((resolve) => {
     chrome.tabs.onUpdated.addListener(function listener(

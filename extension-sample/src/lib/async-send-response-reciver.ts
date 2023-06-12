@@ -74,7 +74,7 @@ const processWithPromise = (params: IProcessWithPromise) => {
     try {
       response = await performTask(request);
     } catch (err) {
-      response.status.error = err;
+      response.status.error = {err , type : 'exception'};
     }
 
     // Once the task is complete, send the actual response !!!
