@@ -1,4 +1,4 @@
-import { sendMessageBetweenTabCreateRemove } from "../lib/sender-to-content-script";
+import { sendMessageToContentBetweenTabCreateRemove } from "../lib/sender-to-content-script";
 import { ISendMessage } from "../types/i-send-message";
 import { ISendResponse } from "../types/i-send-response";
 import { message1, message2, message3, message4 } from "./messages";
@@ -16,10 +16,8 @@ async function run() {
 
   for (let index = 0; index < messages.length; index++) {
     const message = messages[index];
-    const result: ISendResponse = await sendMessageBetweenTabCreateRemove(
-      url,
-      message
-    );
+    const result: ISendResponse =
+      await sendMessageToContentBetweenTabCreateRemove(url, message);
     console.log(`result on background ${result}`);
     console.log(result);
   }

@@ -8,7 +8,7 @@ import { ISendResponse } from "../types/i-send-response";
  * @param message 
  * @returns 
  */
-export async function sendMessageBetweenTabCreateRemove(
+export async function sendMessageToContentBetweenTabCreateRemove(
   url: string,
   message: ISendMessage
 ): Promise<ISendResponse> {
