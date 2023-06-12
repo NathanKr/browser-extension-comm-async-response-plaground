@@ -23,7 +23,7 @@ export default [
     plugins,
   },
   {
-    input: "src/content/content.ts",
+    input: "src/content/content_script.ts",
     output: {
       dir: `${DIST_DIRECTORY}/content`,
       format,

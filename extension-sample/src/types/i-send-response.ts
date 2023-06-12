@@ -1,4 +1,6 @@
+import { PayloadResponse } from "./types";
+
 export interface ISendResponse {
-  payload?: object;
+  payload?: PayloadResponse;
   status: { isSuccess: boolean; error?: unknown };
 }

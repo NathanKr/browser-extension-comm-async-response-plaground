@@ -1,7 +1,31 @@
-import { sendMessageToContentScript } from "../lib/utils";
-import IRunOnTabReady from "../types/i-run-on-tab-ready";
 import { ISendMessage } from "../types/i-send-message";
 import { ISendResponse } from "../types/i-send-response";
+
+interface IRunOnTabReady {
+  tabId: number;
+  onComplete: (value: ISendResponse) => void;
+  message: ISendMessage;
+}
+
+
+export async function sendMessageBetweenTabCreateRemove(
+  url: string,
+  message: ISendMessage
+): Promise<ISendResponse> {
+  return createTabAndWaitForReadySendMessageWaitForResponseAndRemoveTab(
+    url,
+    runOnTabReadyDefault,
+    message
+  );
+}
+
+function sendMessageToContentScript(
+  tabId: number,
+  message: ISendMessage
+): Promise<ISendResponse> {
+  return chrome.tabs.sendMessage(tabId, message);
+}
+
 
 /**
  * The following tasks are perfomrd in series !!!!! 
@@ -30,16 +54,7 @@ const runOnTabReadyDefault = async (params: IRunOnTabReady) => {
   onComplete(response); // --- put in the end
 };
 
-export async function sendMessageBetweenTabCreateRemove(
-  url: string,
-  message: ISendMessage
-): Promise<ISendResponse> {
-  return createTabAndWaitForReadySendMessageWaitForResponseAndRemoveTab(
-    url,
-    runOnTabReadyDefault,
-    message
-  );
-}
+
 
 async function createTabAndWaitForReadySendMessageWaitForResponseAndRemoveTab(
   url: string,

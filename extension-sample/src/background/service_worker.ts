@@ -1,6 +1,6 @@
+import { sendMessageBetweenTabCreateRemove } from "../lib/sender-to-content-script";
 import { ISendMessage } from "../types/i-send-message";
 import { ISendResponse } from "../types/i-send-response";
-import { sendMessageBetweenTabCreateRemove } from "./background-utils";
 
 console.log("background is loaded ....");
 
@@ -11,7 +11,7 @@ const url = "https://example.com/";
 async function run() {
   // --- perform the task in series !!!!!!!!!!
   const message: ISendMessage = {
-    action: "action1",
+    action: "Action1",
   };
 
   for (let index = 0; index < 2; index++) {
