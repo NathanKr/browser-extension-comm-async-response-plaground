@@ -1,13 +1,13 @@
 import { ISendMessage } from "../types/i-send-message";
 import { ISendResponse } from "../types/i-send-response";
 
-interface IRunOnTabReady {
-  tabId: number;
-  onComplete: (value: ISendResponse) => void;
-  message: ISendMessage;
-}
 
-
+/**
+ * 
+ * @param url This is the ONLY export function by the sender to content script
+ * @param message 
+ * @returns 
+ */
 export async function sendMessageBetweenTabCreateRemove(
   url: string,
   message: ISendMessage
@@ -17,6 +17,12 @@ export async function sendMessageBetweenTabCreateRemove(
     runOnTabReadyDefault,
     message
   );
+}
+
+interface IRunOnTabReady {
+  tabId: number;
+  onComplete: (value: ISendResponse) => void;
+  message: ISendMessage;
 }
 
 function sendMessageToContentScript(

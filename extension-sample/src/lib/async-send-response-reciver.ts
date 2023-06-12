@@ -2,6 +2,16 @@ import { ISendMessage } from "../types/i-send-message";
 import { ISendResponse } from "../types/i-send-response";
 import { ActionType } from "../types/types";
 
+/**
+ * This is the ONLY exported function
+ * Used by the reciver that want to send response asynchronously
+ * It is critically important for content script
+ * May be also used by background \ popup UI
+ * @param tasksMap 
+ * @param sendResponse 
+ * @param request 
+ * @returns 
+ */
 export function handleAsyncSendResponse(
   tasksMap: TasksMap,
   sendResponse: (response: ISendResponse) => void,
