@@ -1,96 +1,95 @@
-<h2>Introduction</h2>
-given a background script sending a message to content script and wait for response. If the content script does not reply withing 0.5 sec i get connection error. So what to do
-
 <h2>Motivation</h2>
+To have a solution that i can use for inner communication in a browser extension project in general and 'Linkedin Marketing Automation Tool' in particular
 
-<h3>use cases that this repo is not relevant for</h3>
+<h2>Spec</h2>
+perform the following tasks 
 <ul>
-<li>If you have tasks that does not return info than this is not important for you because the sender does not need to wait for response</li>
-<li>if the sender need the response and reciver reply quickly (until 0.5 sec in content script) using sendResponse than no problem</li>
+<li>view profiles - long processing task</li>
+<li>send message to profiles - long processing task</li>
+<li>process poll - medium processing task (for fetching the voters per option)</li>
+<li>process post</li>
 </ul>
 
-<h3>use cases that this repo is relevant but you have other option</h3>
-but if the reciver is content script and processing time is above 0.5 and the reciver need the information than you have a problem.
-<p> you can solve this using two messages : start and finish where the reciver send start immidiately in sendResponse and finish via runtime.sendMessage but this require state machine to handle. it is possible but cumbersome<p>
+<h2>Constraints and solutions</h2>
+<table>
+  <tr>
+    <th>Constraint</th>
+    <th>Solution</th>
+  </tr>
+  <tr>
+    <td>c1 : use type safe language</td>
+    <td>typescript without any</td>
+  </tr>
+  <tr>
+    <td>c2 : content script has limitations : <ol><li>regular communication with content script via sync sendResponse is closed after ~0.5 sec </li><li>not all chrome api is supported </li><li>import issues</li> </td>
+    <td><ol><li>use a-sync sendResponse check handleAsyncSendResponse</li><li>minimal code in content script</li><li>send message only when the page is ready using chrome.tabs.onUpdated</li></ol></td></ol>
+  </tr>
+  <tr>
+    <td>c3 : popup ui is close when active tab is opened</td>
+    <td>create a tab using active : false</td>
+  </tr>
+  <tr>
+    <td>c4 : tasks must be perform in series to prevent content script overloading and achive linear order</td>
+    <td>use synchronous message Queue in the background service worker</td>
+  </tr>
+  <tr>
+    <td>c5 : bot detection : tasks must be perform in a human maner to prevent from being discovered. in particular some taks require long pause e.g. send message require 4 minute</td>
+    <td>on top of running tasks in series (c4) in the message queue the scheduler \ dispatcher will take care of delay between tasks</td>
+  </tr>
+  <tr>
+    <td>c6 : recovery (phase 2) : the user can close the browser during processing , re open and it will continue from there </td>
+    <td>write the queue to local storage (TBD which) on every change and load when start. just like in check your tech skills - when the user close the app in the middle of a quiz</td>
+  </tr>
+  <tr>
+    <td>c7 : UX : the user should be able to add tasks and view result via easy to develop UI (react based is first option)</td>
+    <td><p>UI will be implemented on popup UI which is not closed on eveey tab created via active : false</p> <p>add task and view results will be by means of chrome.runtime.sendMessage with immidiate response from message queue in the background. once task finish a message will be sent via chrome.runtime.sendMessage  (by who queue \ dispatch \ scheduler ??)</p></td>
+  </tr>
+  <tr>
+    <td>c8 : UX\visibility : the user should be able to see task start \ progress \ end for long tasks</td>
+    <td>see c7</td>
+  </tr>
+  <tr>
+    <td>c9 : UX : the user should be able to download to disk csv based tasks results like voters per option in poll results</td>
+    <td>i all ready have a <a href='https://github.com/NathanKr/next.js-download-file-poc-private'>working poc</a> for this . This requires a server</td>
+  </tr>
+  <tr>
+    <td>c10 (phase 3) : all tasks definition and result should be stored in a db</td>
+    <td>probably mongo db atlas which i all ready have</td>
+  </tr>
+ </table>
 
-<h3>perfect solution</h3>
-if the sender need to wait for the reciver and you do not want to depend on processing time you simply need to make the reciver sendResponse to work asynchronously
+<h2>Assumptions</h2>
+<ul>
+<li>The popup ui is open during all tasks (phase 1 , will be removed in later phases)</li>
+</ul>
 
-<h3>Limitation</h3>
-i do not see limitation . Did a test where the reciver - content was processing for almost 50 sec and using a-sync sendResponse deliver the info to the waiting sender
+<h2>Design components</h2>
+<ul>
+<li>a-sync send request in the content script - async-send-response-reciver.ts</li>
+<li>synchronoise message queue \ task queue (both ??) in the background service worker - sender-to-content-script.ts</li>
+<li>task scheduler</li>
+<li>task dispatcher</li>
+</ul>
+
+<h2>open issues</h2>
+<ul>
+<li>how the schduler will operate ? via setInterval or other wise</li>
+<ul>
+
+<h2>todos</h2>
+<ul>
+<li>send message on enqueue , dqueue by the dispatcher</li>
+<li>send message on start \ finish task - by who</li>
+<li>add react to popup ui</li>
+<li>add message schema : queue and a-sync response</li>
+</ul>
 
 
-<h2>Synchronization Demo</h2>
-The following tasks are perfomrd in series !!!!! and implemented in createTabAndWaitForReadyRunOnTabReadyAndRemoveTab
-<ol>
-<li>The background create a tab</li>
-<li>the content script perform a long processing task ~ 12 sec and send the datetime at the task start\end back to the background using async sendResponse </li>
-<li>The background delete the created tab</li>
-</ol>
-
-now you can do this :
-
-```ts
-
-await createTabAndWaitForReadyRunOnTabReadyAndRemoveTab
-await createTabAndWaitForReadyRunOnTabReadyAndRemoveTab
-
-
-```
-
-<h2>Sample flow</h2>
-check ver 0.1 and see the problem on this senario : 
-<p>background :  create a tab and send a message. first make sure you send message only inside chrome.tabs.onUpdated.addListener</p>
-<p>content : recive the message a wait for 1000 ms. during this the connection is closed and i get on the background side an error : 'The message port closed before a response was received.'</p>
-
-<h2>Analysis</h2>
-A message sent by the caller - here background must follow a response by the reciver - here the content script. In my sample i sleep for 1 sec and i get the error : may be because chrome want these communication to be short
-
-<h2>synchronouse messaging</h2>
-What we actually have in ver 0.1 is synchronously messaging system meaning that the reciver (here the content script) call sendResponse synchronousely thus block until he can send the response. may be this is why it should not take more than 0.5 sec because content script actually is ivoked in the content of it host page and block it. And for content script it is not acceptable.
-
-```ts
-chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
-  console.log("content script got request !!!!!!!!!!");
-  console.log(request);
-  console.log(sender);
-
-  console.log("before sleep 1000");
-  await sleep(1000);
-  console.log("after sleep 1000");
-
-  sendResponse({ message: "response from content script" });
-});
-```
-
-<h2>a-synchronouse messaging</h2>
- Here the reciver call sendResponse a-synchronously thus will not block its execution
-<ol>
-<li>the reciver return true in chrome.runtime.onMessage.addListener</li>
-<li>the reciver create a promise put the long processing there and sendResponse on resolve</li>
-</ol>
-
-```ts
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log("content script got request !!!!!!!!!!");
-
-  const complete = (val) =>
-    sendResponse({ result: "Operation completed !!!", val });
-
-  // Perform the sleep or long-running task
-  const p = new Promise(async (resolve) => {
-    const resData = await performLongTask();
-    // Once the task is complete, send the actual response !!!
-    resolve(resData);
-  });
-  p.then(complete).catch((err) => console.error(err));
-
-  return true;
-});
-```
 
 <h2>references</h2>
-<ol>
-<li>the rollup setup is taken from <a href='https://github.com/NathanKr/rollup-plugin-complex-playground/releases/tag/1.1'>rollup-plugin-complex-playground (ver 1.1)</a></li>
-</ol>
-
+<ul>
+<li>this version is built over <a href='https://github.com/NathanKr/extension-comm-async-response-poc-private/releases/tag/0.47'>extension-comm-async-response-poc-private (ver 0.47)</a>
+</li>
+<li><a href='https://github.com/NathanKr/next.js-download-file-poc-private'>working poc to download file</a></li>
+<li><a href='https://github.com/NathanKr/my-event-loop-poc-private'>poc of event loop with task queue \ scheduler \ dispatcher</a></li>
+</ul>
