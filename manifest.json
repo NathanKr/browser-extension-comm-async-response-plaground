@@ -1,7 +1,7 @@
 {
-  "name": "Content Script",
+  "name": "Comm Async POC",
   "version": "1.0",
-  "description": "Content Script Description",
+  "description": "Comm Async POC Description",
   "manifest_version": 3,
   "author": "Nathan Krasney",
   "action": {
