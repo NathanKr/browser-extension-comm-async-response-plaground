@@ -76,7 +76,7 @@ async function createTabAndWaitForReadySendMessageWaitForResponseAndRemoveTab(
   const p = new Promise<ISendResponse>((resolve) => {
     chrome.tabs.onUpdated.addListener(function listener(
       updatedTabId: number,
-      changeInfo: any
+      changeInfo: chrome.tabs.TabChangeInfo
     ) {
       if (updatedTabId === tabId && changeInfo.status === "complete") {
         // --- await here is not working so i have to use promise
